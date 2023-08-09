@@ -5,7 +5,7 @@ import os
 import re
 
 VERSION_VARIABLE_NAME = '__VERSION__'
-__VERSION__ = "v1.2.0-1-g21398f6"
+__VERSION__ = "v1.3.0"
 
 
 def parse_arguments():
@@ -31,7 +31,6 @@ def parse_arguments():
     return args
 
 
-
 def debug_print(debug, message):
     if debug:
         print(f"DEBUG: {message}")
@@ -52,7 +51,8 @@ def add_major_version(debug=False):
         return "v1.0.0"
     
     try:
-        major, _, _ = git_version[1:].split('.')
+        match = re.match(r'v(\d+)\.(\d+)\.(\d+)', git_version)
+        major, _, _ = match.groups()
         new_major = str(int(major) + 1)
         new_version = f"v{new_major}.0.0"
         return new_version
@@ -67,13 +67,15 @@ def add_minor_version(debug=False):
         return "v0.1.0"
     
     try:
-        major, minor, _ = git_version[1:].split('.')
+        match = re.match(r'v(\d+)\.(\d+)\.(\d+)', git_version)
+        major, minor, _ = match.groups()
         new_minor = str(int(minor) + 1)
         new_version = f"v{major}.{new_minor}.0"
         return new_version
     except Exception as e:
         print(f"Error: Unable to determine current version for minor increment. {str(e)}")
         return None
+
 
 
 def add_patch_version(debug=False):
@@ -83,13 +85,15 @@ def add_patch_version(debug=False):
         return "v0.0.1"
     
     try:
-        major, minor, patch = git_version[1:].split('.')
+        match = re.match(r'v(\d+)\.(\d+)\.(\d+)', git_version)
+        major, minor, patch = match.groups()
         new_patch = str(int(patch) + 1)
         new_version = f"v{major}.{minor}.{new_patch}"
         return new_version
     except Exception as e:
         print(f"Error: Unable to determine current version for patch increment. {str(e)}")
         return None
+
 
 def add_version_tag(version, debug=False, message="Updated version"):
     debug_print(debug, f"Attempting to add Git tag: {version}")
