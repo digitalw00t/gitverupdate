@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
-# program: gitverupdate.py
-# purpose: easily update a file's internal version variable with the TAG from the github repo it is in
-
 import subprocess
 import argparse
 import os
 import re
 
-# Constant for the default version variable name
 VERSION_VARIABLE_NAME = '__VERSION__'
-__VERSION__ = "v1.0.2"  # Set your desired version number here
+__VERSION__ = "v1.1.1"
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Update version variable in source code from Git tag.")
@@ -21,13 +17,88 @@ def parse_arguments():
     parser.add_argument("--addminor", action="store_true", help="Increment the minor version.")
     parser.add_argument("--addpatch", action="store_true", help="Increment the patch version.")
     parser.add_argument("--taglist", action="store_true", help="Display the list of tags in the repository.")
+    parser.add_argument("--debug", action="store_true", help="Enable debug mode.")
     return parser.parse_args()
 
-def get_git_version():
+def debug_print(debug, message):
+    if debug:
+        print(f"DEBUG: {message}")
+
+def get_git_version(debug=False):
     try:
-        return subprocess.getoutput('git describe --tags --always')
+        git_version = subprocess.getoutput('git describe --tags --always')
+        debug_print(debug, f"Retrieved Git version: {git_version}")
+        return git_version if git_version.strip() else None
     except:
         print("Error: Unable to retrieve Git tag.")
+        exit(1)
+
+def add_major_version(debug=False):
+    git_version = get_git_version(debug)
+    if not git_version.startswith('v'):
+        debug_print(debug, "No existing version found. Starting from v1.0.0.")
+        return "v1.0.0"
+    
+    try:
+        major, _, _ = git_version[1:].split('.')
+        new_major = str(int(major) + 1)
+        new_version = f"v{new_major}.0.0"
+        return new_version
+    except Exception as e:
+        print(f"Error: Unable to determine current version for major increment. {str(e)}")
+        return None
+
+def add_minor_version(debug=False):
+    git_version = get_git_version(debug)
+    if not git_version.startswith('v'):
+        debug_print(debug, "No existing version found. Starting from v0.1.0.")
+        return "v0.1.0"
+    
+    try:
+        major, minor, _ = git_version[1:].split('.')
+        new_minor = str(int(minor) + 1)
+        new_version = f"v{major}.{new_minor}.0"
+        return new_version
+    except Exception as e:
+        print(f"Error: Unable to determine current version for minor increment. {str(e)}")
+        return None
+
+
+def add_patch_version(debug=False):
+    git_version = get_git_version(debug)
+    if not git_version.startswith('v'):
+        debug_print(debug, "No existing version found. Starting from v0.0.1.")
+        return "v0.0.1"
+    
+    try:
+        major, minor, patch = git_version[1:].split('.')
+        new_patch = str(int(patch) + 1)
+        new_version = f"v{major}.{minor}.{new_patch}"
+        return new_version
+    except Exception as e:
+        print(f"Error: Unable to determine current version for patch increment. {str(e)}")
+        return None
+
+def add_version_tag(version, debug=False, message="Updated version"):
+    debug_print(debug, f"Attempting to add Git tag: {version}")
+    try:
+        # Delete the existing tag if it exists
+        subprocess.run(['git', 'tag', '-d', version], stderr=subprocess.DEVNULL)
+        debug_print(debug, f"Deleted existing Git tag '{version}' if it existed.")
+        # Create and annotate the new tag
+        subprocess.run(['git', 'tag', '-a', version, '-m', message])
+        print(f"Git tag '{version}' created and added.")
+    except Exception as e:
+        print(f"Error: Unable to create and add Git tag. {str(e)}")
+
+
+def show_git_tag(debug=False):
+    debug_print(debug, "Attempting to retrieve Git tag.")
+    try:
+        git_tag = get_git_version()
+        print(f"Current Git tag in CWD: {git_tag}")
+    except:
+        print("Error: Unable to retrieve current Git tag.")
         exit(1)
 
 def update_version_in_file(file_path, var_name, version):
@@ -39,14 +110,14 @@ def update_version_in_file(file_path, var_name, version):
         # Check if the version variable is present in the content
         pattern = re.compile(rf"{re.escape(var_name)}\s*=\s*\"(\S+)\"")
         match = pattern.search(content)
-        
+
         if match:
             current_version = match.group(1)
-            
+
             if current_version != version:
                 # Replace the current version with the new version
                 new_content = pattern.sub(f"{var_name} = \"{version}\"", content)
-                
+
                 # Write the updated content back to the file
                 with open(file_path, 'w') as file:
                     file.write(new_content)
@@ -61,81 +132,17 @@ def update_version_in_file(file_path, var_name, version):
         exit(1)
 
 
-def show_git_tag():
-    try:
-        git_tag = get_git_version()
-        print(f"Current Git tag in CWD: {git_tag}")
-    except:
-        print("Error: Unable to retrieve current Git tag.")
-        exit(1)
-
-def add_major_version():
-    try:
-        git_version = get_git_version()
-        parts = git_version.split('-')
-        if len(parts) >= 2:
-            major, _ = parts[0].split('.')
-            new_major = str(int(major) + 1)
-            new_version = f"{new_major}.0.0"
-            return new_version
-        else:
-            print("Error: Unable to determine current version for major increment.")
-            exit(1)
-    except:
-        print("Error: Unable to perform major increment.")
-        exit(1)
-
-def add_minor_version():
-    try:
-        git_version = get_git_version()
-        parts = git_version.split('-')
-        if len(parts) >= 2:
-            major, minor, _ = parts[0].split('.')
-            new_minor = str(int(minor) + 1)
-            new_version = f"{major}.{new_minor}.0"
-            return new_version
-        else:
-            print("Error: Unable to determine current version for minor increment.")
-            exit(1)
-    except:
-        print("Error: Unable to perform minor increment.")
-        exit(1)
-
-def add_patch_version():
-    try:
-        git_version = get_git_version()
-        parts = git_version.split('-')
-        if len(parts) >= 2:
-            major, minor, patch = parts[0].split('.')
-            new_patch = str(int(patch) + 1)
-            new_version = f"{major}.{minor}.{new_patch}"
-            return new_version
-        else:
-            print("Error: Unable to determine current version for patch increment.")
-            exit(1)
-    except:
-        print("Error: Unable to perform patch increment.")
-        exit(1)
-
-def show_tag_list():
-    try:
-        tag_list = subprocess.getoutput('git tag --list')
-        print("List of tags in the repository:")
-        print(tag_list)
-    except:
-        print("Error: Unable to retrieve tag list.")
-        exit(1)
-
 def main():
-    # Parse the command-line arguments
     args = parse_arguments()
+
+    debug = args.debug
 
     if args.version:
         print(f"This is gitverupdate.py version {__VERSION__}")
         return
 
     if args.show:
-        show_git_tag()
+        show_git_tag(debug)
         return
 
     if args.taglist:
@@ -143,48 +150,30 @@ def main():
         return
 
     if args.addmajor:
-        new_version = add_major_version()
-        print(f"New version after major increment: {new_version}")
-        try:
-            subprocess.run(['git', 'tag', new_version])
-            print(f"Git tag '{new_version}' created and added.")
-        except Exception as e:
-            print(f"Error: Unable to create and add Git tag. {str(e)}")
-        return
+        new_version = add_major_version(debug)
+    elif args.addminor:
+        new_version = add_minor_version(debug)
+    elif args.addpatch:
+        new_version = add_patch_version(debug)
 
-    if args.addminor:
-        new_version = add_minor_version()
-        print(f"New version after minor increment: {new_version}")
-        try:
-            subprocess.run(['git', 'tag', new_version])
-            print(f"Git tag '{new_version}' created and added.")
-        except Exception as e:
-            print(f"Error: Unable to create and add Git tag. {str(e)}")
-        return
-
-    if args.addpatch:
-        new_version = add_patch_version()
-        print(f"New version after patch increment: {new_version}")
-        try:
-            subprocess.run(['git', 'tag', new_version])
-            print(f"Git tag '{new_version}' created and added.")
-        except Exception as e:
-            print(f"Error: Unable to create and add Git tag. {str(e)}")
+    if args.addmajor or args.addminor or args.addpatch:
+        if new_version:
+            debug_print(debug, f"New version determined: {new_version}")
+            add_version_tag(new_version, debug)
+            print(f"New version after {'major' if args.addmajor else 'minor' if args.addminor else 'patch'} increment: {new_version}")
+        else:
+            print("Error: Unable to determine current version.")
         return
 
     if not args.file_path:
         print("Error: The file_path argument is required.")
         return
 
-    # Validate the file path
     if not os.path.exists(args.file_path) or not os.path.isfile(args.file_path):
         print(f"Error: File {args.file_path} not found.")
         exit(1)
 
-    # Retrieve the Git version (tag or commit hash)
-    version = get_git_version()
-
-    # Update the version variable in the target file
+    version = get_git_version(debug)
     update_version_in_file(args.file_path, args.var_name, version)
 
 if __name__ == '__main__':
