@@ -1,7 +1,7 @@
 ```markdown
 # Git Version Updater
 
-This utility script, `gitverupdate.py`, is designed to help you easily update a version variable in your source code files with the Git tag from the GitHub repository it is in. It provides options to update the version variable, display the application version, and show the current Git tag in the repository's working directory (CWD).
+This utility script, `gitverupdate.py`, is designed to help you easily update a version variable in your source code files with the Git tag from the GitHub repository it is in. It provides options to increment the major, minor, or patch version, update the version variable, display the application version, and show the current Git tag in the repository's working directory (CWD).
 
 ## Usage
 
@@ -9,6 +9,12 @@ Run the script with the desired options and arguments:
 
 ```bash
 ./gitverupdate.py [options] [file_path]
+```
+
+Or display the usage instructions:
+
+```bash
+./gitverupdate.py --usage
 ```
 
 ## Options
@@ -29,10 +35,12 @@ Run the script with the desired options and arguments:
 
 - `--taglist`: (Optional) Display the list of current tags in the repository.
 
+- `--usage`: (Optional) Display the usage instructions for the script. This is also shown if no arguments are provided.
+
 ## Examples
 
 1. Display the script version:
-   
+
    ```bash
    ./gitverupdate.py --version
    ```
@@ -75,7 +83,13 @@ Run the script with the desired options and arguments:
 
    This will increment the patch version by one.
 
-7. Display the list of current tags:
+7. Display the usage instructions:
+
+   ```bash
+   ./gitverupdate.py --usage
+   ```
+
+8. Display the list of current tags:
 
    ```bash
    ./gitverupdate.py --taglist

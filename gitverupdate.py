@@ -5,7 +5,8 @@ import os
 import re
 
 VERSION_VARIABLE_NAME = '__VERSION__'
-__VERSION__ = "v1.1.1"
+__VERSION__ = "v1.2.0-1-g21398f6"
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Update version variable in source code from Git tag.")
@@ -17,8 +18,19 @@ def parse_arguments():
     parser.add_argument("--addminor", action="store_true", help="Increment the minor version.")
     parser.add_argument("--addpatch", action="store_true", help="Increment the patch version.")
     parser.add_argument("--taglist", action="store_true", help="Display the list of tags in the repository.")
+    parser.add_argument("--usage", action="store_true", help="Display the usage instructions.") # Added --usage argument
     parser.add_argument("--debug", action="store_true", help="Enable debug mode.")
-    return parser.parse_args()
+    
+    args = parser.parse_args()
+
+    # Check if no arguments provided or --usage flag used
+    if args.usage or not any(vars(args).values()): # Added condition for --usage or no args
+        parser.print_help() # Print the usage instructions
+        exit(0) # Exit the script
+
+    return args
+
+
 
 def debug_print(debug, message):
     if debug:
@@ -134,6 +146,11 @@ def update_version_in_file(file_path, var_name, version):
 
 def main():
     args = parse_arguments()
+
+    # Check if no arguments provided or --usage flag used
+    if args.usage or not any(vars(args).values()): # Added condition for --usage or no args
+        parser.print_help() # Print the usage instructions
+        return
 
     debug = args.debug
 
