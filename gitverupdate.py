@@ -16,6 +16,7 @@ def parse_arguments():
     parser.add_argument("file_path", nargs="?", help="Path to the target source code file.")
     parser.add_argument("--var_name", default=VERSION_VARIABLE_NAME, help="Name of the version variable to update.")
     parser.add_argument("--version", action="store_true", help="Display the application version.")
+    parser.add_argument("--show", action="store_true", help="Display the current Git tag for the repository in the CWD.")
     return parser.parse_args()
 
 def get_git_version():
@@ -56,12 +57,24 @@ def update_version_in_file(file_path, var_name, version):
         print(f"Error: An unexpected error occurred while updating the file. {str(e)}")
         exit(1)
 
+def show_git_tag():
+    try:
+        git_tag = get_git_version()
+        print(f"Current Git tag in CWD: {git_tag}")
+    except:
+        print("Error: Unable to retrieve current Git tag.")
+        exit(1)
+
 def main():
     # Parse the command-line arguments
     args = parse_arguments()
 
     if args.version:
         print(f"This is gitverupdate.py version {__VERSION__}")
+        return
+
+    if args.show:
+        show_git_tag()
         return
 
     if not args.file_path:
