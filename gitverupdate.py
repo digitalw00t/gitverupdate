@@ -120,11 +120,11 @@ def update_version_in_file(file_path, var_name, version):
             content = file.read()
 
         # Check if the version variable is present in the content
-        pattern = re.compile(rf"{re.escape(var_name)}\s*=\s*\"(\S+)\"")
+        pattern = re.compile(rf"{re.escape(var_name)}\s*=\s*(?:\"(\S+)\"|(\S+))")
         match = pattern.search(content)
 
         if match:
-            current_version = match.group(1)
+            current_version = match.group(1) or match.group(2)
 
             if current_version != version:
                 # Replace the current version with the new version
@@ -142,6 +142,7 @@ def update_version_in_file(file_path, var_name, version):
     except Exception as e:
         print(f"Error: An unexpected error occurred while updating the file. {str(e)}")
         exit(1)
+
 
 
 def main():
