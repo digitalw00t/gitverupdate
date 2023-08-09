@@ -9,12 +9,13 @@ import re
 
 # Constant for the default version variable name
 VERSION_VARIABLE_NAME = '__VERSION__'
-__VERSION__ = None
+__VERSION__ = "1.0.0"  # Set your desired version number here
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Update version variable in source code from Git tag.")
-    parser.add_argument("file_path", help="Path to the target source code file.")
+    parser.add_argument("file_path", nargs="?", help="Path to the target source code file.")
     parser.add_argument("--var_name", default=VERSION_VARIABLE_NAME, help="Name of the version variable to update.")
+    parser.add_argument("--version", action="store_true", help="Display the application version.")
     return parser.parse_args()
 
 def get_git_version():
@@ -31,9 +32,9 @@ def update_version_in_file(file_path, var_name, version):
             content = file.read()
 
         # Check if the version variable is present in the content
-        if var_name in content:
+        pattern = re.compile(f"{re.escape(var_name)}\\s*=\\s*(?:'\\S+'|None)")
+        if re.search(pattern, content):
             # Find the version variable and replace its value
-            pattern = re.compile(f"{re.escape(var_name)}\\s*=\\s*'\\S+'")
             new_content = pattern.sub(f"{var_name} = '{version}'", content)
 
             # Confirm with the user and update the file
@@ -55,10 +56,17 @@ def update_version_in_file(file_path, var_name, version):
         print(f"Error: An unexpected error occurred while updating the file. {str(e)}")
         exit(1)
 
-
 def main():
     # Parse the command-line arguments
     args = parse_arguments()
+
+    if args.version:
+        print(f"This is gitverupdate.py version {__VERSION__}")
+        return
+
+    if not args.file_path:
+        print("Error: The file_path argument is required.")
+        return
 
     # Validate the file path
     if not os.path.exists(args.file_path) or not os.path.isfile(args.file_path):
