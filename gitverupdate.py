@@ -17,6 +17,10 @@ def parse_arguments():
     parser.add_argument("--var_name", default=VERSION_VARIABLE_NAME, help="Name of the version variable to update.")
     parser.add_argument("--version", action="store_true", help="Display the application version.")
     parser.add_argument("--show", action="store_true", help="Display the current Git tag for the repository in the CWD.")
+    parser.add_argument("--addmajor", action="store_true", help="Increment the major version.")
+    parser.add_argument("--addminor", action="store_true", help="Increment the minor version.")
+    parser.add_argument("--addpatch", action="store_true", help="Increment the patch version.")
+    parser.add_argument("--taglist", action="store_true", help="Display the list of tags in the repository.")
     return parser.parse_args()
 
 def get_git_version():
@@ -65,6 +69,63 @@ def show_git_tag():
         print("Error: Unable to retrieve current Git tag.")
         exit(1)
 
+def add_major_version():
+    try:
+        git_version = get_git_version()
+        parts = git_version.split('-')
+        if len(parts) >= 2:
+            major, _ = parts[0].split('.')
+            new_major = str(int(major) + 1)
+            new_version = f"{new_major}.0.0"
+            return new_version
+        else:
+            print("Error: Unable to determine current version for major increment.")
+            exit(1)
+    except:
+        print("Error: Unable to perform major increment.")
+        exit(1)
+
+def add_minor_version():
+    try:
+        git_version = get_git_version()
+        parts = git_version.split('-')
+        if len(parts) >= 2:
+            major, minor, _ = parts[0].split('.')
+            new_minor = str(int(minor) + 1)
+            new_version = f"{major}.{new_minor}.0"
+            return new_version
+        else:
+            print("Error: Unable to determine current version for minor increment.")
+            exit(1)
+    except:
+        print("Error: Unable to perform minor increment.")
+        exit(1)
+
+def add_patch_version():
+    try:
+        git_version = get_git_version()
+        parts = git_version.split('-')
+        if len(parts) >= 2:
+            major, minor, patch = parts[0].split('.')
+            new_patch = str(int(patch) + 1)
+            new_version = f"{major}.{minor}.{new_patch}"
+            return new_version
+        else:
+            print("Error: Unable to determine current version for patch increment.")
+            exit(1)
+    except:
+        print("Error: Unable to perform patch increment.")
+        exit(1)
+
+def show_tag_list():
+    try:
+        tag_list = subprocess.getoutput('git tag --list')
+        print("List of tags in the repository:")
+        print(tag_list)
+    except:
+        print("Error: Unable to retrieve tag list.")
+        exit(1)
+
 def main():
     # Parse the command-line arguments
     args = parse_arguments()
@@ -75,6 +136,40 @@ def main():
 
     if args.show:
         show_git_tag()
+        return
+
+    if args.taglist:
+        show_tag_list()
+        return
+
+    if args.addmajor:
+        new_version = add_major_version()
+        print(f"New version after major increment: {new_version}")
+        try:
+            subprocess.run(['git', 'tag', new_version])
+            print(f"Git tag '{new_version}' created and added.")
+        except Exception as e:
+            print(f"Error: Unable to create and add Git tag. {str(e)}")
+        return
+
+    if args.addminor:
+        new_version = add_minor_version()
+        print(f"New version after minor increment: {new_version}")
+        try:
+            subprocess.run(['git', 'tag', new_version])
+            print(f"Git tag '{new_version}' created and added.")
+        except Exception as e:
+            print(f"Error: Unable to create and add Git tag. {str(e)}")
+        return
+
+    if args.addpatch:
+        new_version = add_patch_version()
+        print(f"New version after patch increment: {new_version}")
+        try:
+            subprocess.run(['git', 'tag', new_version])
+            print(f"Git tag '{new_version}' created and added.")
+        except Exception as e:
+            print(f"Error: Unable to create and add Git tag. {str(e)}")
         return
 
     if not args.file_path:
