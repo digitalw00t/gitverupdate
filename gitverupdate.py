@@ -9,7 +9,7 @@ import re
 
 # Constant for the default version variable name
 VERSION_VARIABLE_NAME = '__VERSION__'
-__VERSION__ = "1.0.0"  # Set your desired version number here
+__VERSION__ = "v1.0.1-1-gf60c827"  # Set your desired version number here
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Update version variable in source code from Git tag.")
@@ -37,29 +37,29 @@ def update_version_in_file(file_path, var_name, version):
             content = file.read()
 
         # Check if the version variable is present in the content
-        pattern = re.compile(f"{re.escape(var_name)}\\s*=\\s*(?:'\\S+'|None)")
-        if re.search(pattern, content):
-            # Find the version variable and replace its value
-            new_content = pattern.sub(f"{var_name} = '{version}'", content)
-
-            # Confirm with the user and update the file
-            if new_content != content:
-                print(f"Updating {var_name} to '{version}' in {file_path}. Continue? [y/n]: ", end='')
-                if input().strip().lower() == 'y':
-                    with open(file_path, 'w') as file:
-                        file.write(new_content)
-                    print(f"Successfully updated {var_name} to '{version}' in {file_path}.")
-                else:
-                    print("Update canceled.")
+        pattern = re.compile(rf"{re.escape(var_name)}\s*=\s*\"(\S+)\"")
+        match = pattern.search(content)
+        
+        if match:
+            current_version = match.group(1)
+            
+            if current_version != version:
+                # Replace the current version with the new version
+                new_content = pattern.sub(f"{var_name} = \"{version}\"", content)
+                
+                # Write the updated content back to the file
+                with open(file_path, 'w') as file:
+                    file.write(new_content)
+                print(f"Successfully updated {var_name} to '{version}' in {file_path}.")
             else:
                 print(f"Version variable {var_name} found, but value already matches the tag.")
-
         else:
             print(f"Version variable {var_name} not found in {file_path}. No update needed.")
 
     except Exception as e:
         print(f"Error: An unexpected error occurred while updating the file. {str(e)}")
         exit(1)
+
 
 def show_git_tag():
     try:
