@@ -1,3 +1,4 @@
+```markdown
 # Git Version Updater
 
 This utility script, `gitverupdate.py`, is designed to help you easily update a version variable in your source code files with the Git tag from the GitHub repository it is in. It provides options to update the version variable, display the application version, and show the current Git tag in the repository's working directory (CWD).
@@ -19,6 +20,14 @@ Run the script with the desired options and arguments:
 - `--version`: (Optional) Display the version of the `gitverupdate.py` script.
 
 - `--show`: (Optional) Display the current Git tag for the repository in the CWD.
+
+- `--addmajor`: (Optional) Reset the minor and patch versions to 0 and increment the major version.
+
+- `--addminor`: (Optional) Reset the patch version and increment the minor version by one.
+
+- `--addpatch`: (Optional) Increment the patch version by one.
+
+- `--taglist`: (Optional) Display the list of current tags in the repository.
 
 ## Examples
 
@@ -42,13 +51,60 @@ Run the script with the desired options and arguments:
 
    This will update the specified version variable in the `my_script.py` file with the latest Git tag.
 
-## Use Cases
+4. Increment the major version:
 
-1. **Automated Version Updating**: By integrating `gitverupdate.py` into your build process, you can automatically update the version variable in your source code files with the latest Git tag. This ensures that your application's version information is always in sync with your Git tags.
+   ```bash
+   ./gitverupdate.py --addmajor my_script.py
+   ```
 
-2. **Easy Script Management**: When working with multiple scripts or applications, you can use the `--var_name` option to specify different version variable names for each script. This provides flexibility in managing version information for various components.
+   This will reset the minor and patch versions to 0 and increment the major version.
 
-3. **Version Display**: Use the `--show` option to quickly check the current Git tag in the repository's CWD. This can be helpful during development to verify the version associated with your codebase.
+5. Increment the minor version:
+
+   ```bash
+   ./gitverupdate.py --addminor my_script.py
+   ```
+
+   This will reset the patch version and increment the minor version by one.
+
+6. Increment the patch version:
+
+   ```bash
+   ./gitverupdate.py --addpatch my_script.py
+   ```
+
+   This will increment the patch version by one.
+
+7. Display the list of current tags:
+
+   ```bash
+   ./gitverupdate.py --taglist
+   ```
+
+## Git Workflow
+
+1. Make changes to your code and ensure it's working as expected.
+
+2. Run the script to update the version variable in your code file.
+
+3. Use the appropriate Git commands to add and commit your changes:
+
+   ```bash
+   git add my_script.py
+   git commit -m "Update version variable"
+   ```
+
+4. If needed, increment the version using one of the `--addmajor`, `--addminor`, or `--addpatch` options.
+
+5. Commit the version increment using the same Git commands as above.
+
+6. Push your changes to the remote repository:
+
+   ```bash
+   git push origin main
+   ```
 
 Feel free to customize and adapt this script to your specific needs. If you encounter any issues or have suggestions for improvements, please feel free to contribute or provide feedback.
 ```
+
+You can replace "main" with the appropriate branch name if you're using a different branch for your development.
