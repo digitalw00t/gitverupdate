@@ -54,7 +54,7 @@ Run the script with the desired options and arguments:
 4. Increment the major version:
 
    ```bash
-   ./gitverupdate.py --addmajor my_script.py
+   ./gitverupdate.py --addmajor
    ```
 
    This will reset the minor and patch versions to 0 and increment the major version.
@@ -62,7 +62,7 @@ Run the script with the desired options and arguments:
 5. Increment the minor version:
 
    ```bash
-   ./gitverupdate.py --addminor my_script.py
+   ./gitverupdate.py --addminor
    ```
 
    This will reset the patch version and increment the minor version by one.
@@ -70,7 +70,7 @@ Run the script with the desired options and arguments:
 6. Increment the patch version:
 
    ```bash
-   ./gitverupdate.py --addpatch my_script.py
+   ./gitverupdate.py --addpatch
    ```
 
    This will increment the patch version by one.
