@@ -9,7 +9,7 @@ import re
 
 # Constant for the default version variable name
 VERSION_VARIABLE_NAME = '__VERSION__'
-__VERSION__ = "v1.0.1-1-gf60c827"  # Set your desired version number here
+__VERSION__ = "v1.0.2"  # Set your desired version number here
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Update version variable in source code from Git tag.")
